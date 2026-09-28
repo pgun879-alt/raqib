@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raqib"
+version = "0.1.0"
+description = "Self-hosted watchdog for web pages: content change detection, availability, TLS expiry and security-header regressions."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["monitoring", "change-detection", "uptime", "security-headers", "tls", "ssrf"]
+
+dependencies = [
+  "httpx>=0.27,<1.0",
+  "pydantic>=2.7,<3.0",
+  "pydantic-settings>=2.3,<3.0",
+  "beautifulsoup4>=4.12,<5.0",
+  "lxml>=5.2,<7.0",
+  "Jinja2>=3.1,<4.0",
+  "typer>=0.12,<1.0",
+  "rich>=13.7,<15.0",
+  "PyYAML>=6.0,<7.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2,<9.0", "ruff>=0.5,<1.0", "mypy>=1.10,<3.0", "types-PyYAML"]
+
+[project.scripts]
+raqib = "raqib.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+raqib = ["templates/*.html.j2", "templates/*.md.j2"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF", "S"]
+ignore = [
+  "S101",   # assert is the idiom in tests and for invariants the type system cannot express
+  "RUF001", # Arabic letters flagged as "ambiguous" Unicode; this project is bilingual by design
+  "RUF002",
+  "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106", "S310"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/raqib"]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_optional = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

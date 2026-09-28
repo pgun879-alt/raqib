@@ -1,0 +1,44 @@
+# Environments
+.venv/
+venv/
+env/
+
+# Secrets and local configuration -- never commit these
+.env
+.env.*
+!.env.example
+
+# Snapshot history contains copies of third-party page content
+data/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Generated reports
+reports/
+
+# The operator's own target list may name private or client systems.
+# targets.example.yaml is committed; targets.yaml is not.
+targets.yaml
+!targets.example.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
