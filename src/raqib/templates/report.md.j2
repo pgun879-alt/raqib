@@ -1,0 +1,60 @@
+# raqib monitoring report
+
+**Generated:** {{ generated_at }}
+**User agent:** `{{ user_agent }}`
+**robots.txt:** {% if respect_robots %}honoured{% else %}**NOT honoured** (respect_robots is disabled){% endif %}
+
+## Summary
+
+| Checked | Available | Changed | Errors | Alerts | First snapshots |
+|--:|--:|--:|--:|--:|--:|
+| {{ summary.checked }} | {{ summary.available }} | {{ summary.changed }} | {{ summary.errors }} | {{ summary.alerts }} | {{ summary.first_snapshots }} |
+
+## Targets
+
+{% for target in targets %}
+### {{ target.name }}
+
+- **URL:** {{ target.url }}
+- **Status:** {% if target.error %}❌ {{ target.error }}{% elif target.changed %}⚠️ changed{% elif target.is_first_snapshot %}📄 first snapshot captured{% else %}✅ no change{% endif %}
+{% if target.status_code %}
+- **HTTP:** {{ target.status_code }}{% if target.elapsed_ms %} in {{ target.elapsed_ms }} ms{% endif %}
+{% endif %}
+{% if target.availability_pct is not none %}
+- **Availability (recent checks):** {{ target.availability_pct }}%
+{% endif %}
+- **Snapshots stored:** {{ target.snapshots }}
+
+{% if target.diff %}
+#### Changes
+
+```diff
+{{ target.diff }}
+```
+{% endif %}
+{% if target.security %}
+#### Security posture — grade {{ target.security.grade }} (score {{ target.security.score }}/100)
+
+{% if target.security.tls_version %}
+- **TLS:** {{ target.security.tls_version }}
+{% endif %}
+{% if target.security.certificate_days_left is not none %}
+- **Certificate:** expires {{ target.security.certificate_expires_at }} ({{ target.security.certificate_days_left }} days left)
+{% endif %}
+
+{% if target.security.findings %}
+| Severity | Check | Finding | Recommendation |
+|---|---|---|---|
+{% for finding in target.security.findings %}
+| {{ finding.severity }} | `{{ finding.check }}` | {{ finding.summary }} | {{ finding.recommendation or "—" }} |
+{% endfor %}
+{% else %}
+No findings — every passive check passed.
+{% endif %}
+{% endif %}
+
+{% endfor %}
+---
+
+*All checks in this report are passive: ordinary GET requests and one TLS handshake per HTTPS
+target. No vulnerability probing, fuzzing, or authentication testing is performed.*

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>raqib monitoring report — {{ generated_at }}</title>
+<style>
+  :root { color-scheme: light dark;
+    --fg:#14181d; --bg:#fbfbfd; --muted:#5b6673; --line:#dfe3e8; --card:#fff;
+    --ok:#1a7f4b; --warn:#a2680a; --bad:#b4232a; --code:#f4f5f7; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e8ecf1; --bg:#14181d; --muted:#98a2ae; --line:#2b323b; --card:#1b2027;
+      --ok:#4cc38a; --warn:#e0a82e; --bad:#f06a6a; --code:#22272e; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2rem 1rem; background:var(--bg); color:var(--fg);
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:60rem; margin:0 auto; }
+  h1 { font-size:1.5rem; margin:0 0 .25rem; }
+  h2 { font-size:1.15rem; margin:2rem 0 .75rem; padding-bottom:.3rem; border-bottom:1px solid var(--line); }
+  h3 { font-size:1rem; margin:1.25rem 0 .5rem; }
+  .meta { color:var(--muted); font-size:.9rem; margin:0 0 1.5rem; }
+  .cards { display:flex; flex-wrap:wrap; gap:.75rem; margin-bottom:1rem; }
+  .card { flex:1 1 7rem; background:var(--card); border:1px solid var(--line);
+    border-radius:10px; padding:.75rem; text-align:center; }
+  .card .n { font-size:1.5rem; font-weight:700; display:block; }
+  .card .l { color:var(--muted); font-size:.8rem; }
+  .target { background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:1rem; margin-bottom:1rem; }
+  .pill { display:inline-block; font-size:.75rem; padding:.1rem .55rem; border-radius:999px;
+    border:1px solid currentColor; }
+  .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .dim{color:var(--muted)}
+  dl { display:grid; grid-template-columns:auto 1fr; gap:.2rem .75rem; margin:.5rem 0; }
+  dt { color:var(--muted); }
+  dd { margin:0; word-break:break-all; }
+  pre { background:var(--code); border:1px solid var(--line); border-radius:8px;
+    padding:.75rem; overflow-x:auto; font-size:.85rem; }
+  pre .add{color:var(--ok)} pre .del{color:var(--bad)} pre .hdr{color:var(--muted)}
+  .scroll { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:.9rem; }
+  th,td { border:1px solid var(--line); padding:.4rem .6rem; text-align:left; vertical-align:top; }
+  th { background:var(--code); }
+  .grade { font-size:1.6rem; font-weight:700; }
+  footer { color:var(--muted); font-size:.85rem; margin-top:2rem; border-top:1px solid var(--line);
+    padding-top:1rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>raqib monitoring report</h1>
+  <p class="meta">
+    {{ generated_at }} · user agent <code>{{ user_agent }}</code> ·
+    robots.txt {% if respect_robots %}<span class="ok">honoured</span>{% else %}<span class="bad">NOT honoured</span>{% endif %}
+  </p>
+
+  <div class="cards">
+    <div class="card"><span class="n">{{ summary.checked }}</span><span class="l">checked</span></div>
+    <div class="card"><span class="n ok">{{ summary.available }}</span><span class="l">available</span></div>
+    <div class="card"><span class="n warn">{{ summary.changed }}</span><span class="l">changed</span></div>
+    <div class="card"><span class="n bad">{{ summary.errors }}</span><span class="l">errors</span></div>
+    <div class="card"><span class="n">{{ summary.alerts }}</span><span class="l">alerts</span></div>
+  </div>
+
+  <h2>Targets</h2>
+  {% for target in targets %}
+  <section class="target">
+    <h3>
+      {{ target.name }}
+      {% if target.error %}<span class="pill bad">error</span>
+      {% elif target.changed %}<span class="pill warn">changed</span>
+      {% elif target.is_first_snapshot %}<span class="pill dim">first snapshot</span>
+      {% else %}<span class="pill ok">no change</span>{% endif %}
+    </h3>
+    <dl>
+      <dt>URL</dt><dd><code>{{ target.url }}</code></dd>
+      {% if target.status_code %}
+      <dt>HTTP</dt><dd>{{ target.status_code }}{% if target.elapsed_ms %} · {{ target.elapsed_ms }} ms{% endif %}</dd>
+      {% endif %}
+      {% if target.error %}
+      <dt>Error</dt><dd class="bad">{{ target.error }}</dd>
+      {% endif %}
+      {% if target.availability_pct is not none %}
+      <dt>Availability</dt><dd>{{ target.availability_pct }}% of recent checks</dd>
+      {% endif %}
+      <dt>Snapshots</dt><dd>{{ target.snapshots }}</dd>
+    </dl>
+
+    {% if target.diff %}
+    <h3>Changes</h3>
+    <pre>{% for line in target.diff.split("\n") %}{% if line.startswith("+") and not line.startswith("+++") %}<span class="add">{{ line }}</span>
+{% elif line.startswith("-") and not line.startswith("---") %}<span class="del">{{ line }}</span>
+{% elif line.startswith("@@") or line.startswith("+++") or line.startswith("---") %}<span class="hdr">{{ line }}</span>
+{% else %}{{ line }}
+{% endif %}{% endfor %}</pre>
+    {% endif %}
+
+    {% if target.security %}
+    <h3>Security posture</h3>
+    <p>
+      <span class="grade {% if target.security.grade in ['A','B'] %}ok{% elif target.security.grade in ['C','D'] %}warn{% else %}bad{% endif %}">{{ target.security.grade }}</span>
+      <span class="dim">score {{ target.security.score }}/100</span>
+      {% if target.security.tls_version %} · TLS {{ target.security.tls_version }}{% endif %}
+      {% if target.security.certificate_days_left is not none %}
+        · certificate expires {{ target.security.certificate_expires_at }}
+        ({{ target.security.certificate_days_left }} days)
+      {% endif %}
+    </p>
+    {% if target.security.findings %}
+    <div class="scroll">
+    <table>
+      <tr><th>Severity</th><th>Check</th><th>Finding</th><th>Recommendation</th></tr>
+      {% for finding in target.security.findings %}
+      <tr>
+        <td class="{% if finding.severity == 'high' %}bad{% elif finding.severity == 'medium' %}warn{% else %}dim{% endif %}">{{ finding.severity }}</td>
+        <td><code>{{ finding.check }}</code></td>
+        <td>{{ finding.summary }}{% if finding.detail %}<br><span class="dim">{{ finding.detail }}</span>{% endif %}</td>
+        <td>{% if finding.recommendation %}<code>{{ finding.recommendation }}</code>{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    </div>
+    {% else %}
+    <p class="ok">No findings — every passive check passed.</p>
+    {% endif %}
+    {% endif %}
+  </section>
+  {% endfor %}
+
+  <footer>
+    All checks in this report are <strong>passive</strong>: ordinary GET requests a browser would
+    make, plus one TLS handshake per HTTPS target to read its certificate. No vulnerability
+    probing, fuzzing, path guessing, or authentication testing is performed.
+  </footer>
+</main>
+</body>
+</html>
