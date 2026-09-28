@@ -126,7 +126,9 @@ def json_path(payload: Any, path: str) -> Any:
                 raise ExtractionError(f"path {path!r}: key {key!r} applied to a non-object")
             if key not in current:
                 available = ", ".join(sorted(current)[:8]) or "(none)"
-                raise ExtractionError(f"path {path!r}: key {key!r} not found; available: {available}")
+                raise ExtractionError(
+                    f"path {path!r}: key {key!r} not found; available: {available}"
+                )
             current = current[key]
     return current
 

@@ -100,7 +100,7 @@ class ResolvedTarget:
 
 
 def _classify(address: str) -> str | None:
-    """Return a human-readable reason this address must not be fetched, or ``None`` if it is fine."""
+    """Return why this address must not be fetched, or ``None`` when it is safe."""
     try:
         parsed = ipaddress.ip_address(address)
     except ValueError:

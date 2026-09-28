@@ -61,7 +61,11 @@ class Alert:
 
     def as_text(self) -> str:
         """Plain-text rendering used by the stdout and Telegram sinks."""
-        lines = [f"[{self.severity.upper()}] {self.title}", f"target: {self.target_name}", f"url: {self.url}"]
+        lines = [
+            f"[{self.severity.upper()}] {self.title}",
+            f"target: {self.target_name}",
+            f"url: {self.url}",
+        ]
         if self.body:
             lines.append("")
             lines.append(self.body)
@@ -123,7 +127,9 @@ class WebhookSink(AlertSink):
 
     name = "webhook"
 
-    def __init__(self, url: str, *, timeout: float = 15.0, client: httpx.Client | None = None) -> None:
+    def __init__(
+        self, url: str, *, timeout: float = 15.0, client: httpx.Client | None = None
+    ) -> None:
         if not url:
             raise ValueError("a webhook URL is required")
         self.url = url
@@ -174,7 +180,9 @@ class TelegramSink(AlertSink):
             },
         )
         if response.status_code >= 400:
-            raise RuntimeError(f"Telegram returned HTTP {response.status_code}: {response.text[:200]}")
+            raise RuntimeError(
+                f"Telegram returned HTTP {response.status_code}: {response.text[:200]}"
+            )
 
     def close(self) -> None:
         if self._owns_client:

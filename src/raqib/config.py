@@ -210,7 +210,9 @@ class WatchTarget(BaseModel):
             try:
                 re.compile(pattern)
             except re.error as exc:
-                raise ValueError(f"ignore_patterns entry {pattern!r} is not a valid regex: {exc}")
+                raise ValueError(
+                    f"ignore_patterns entry {pattern!r} is not a valid regex: {exc}"
+                ) from exc
         return value
 
     @model_validator(mode="after")

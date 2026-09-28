@@ -122,8 +122,12 @@ def check(
 
 @app.command()
 def watch(
-    tick_seconds: Annotated[float, typer.Option(min=1.0, help="Seconds between scheduler ticks.")] = 30.0,
-    max_ticks: Annotated[int | None, typer.Option(help="Stop after this many ticks (demos/tests).")] = None,
+    tick_seconds: Annotated[
+        float, typer.Option(min=1.0, help="Seconds between scheduler ticks.")
+    ] = 30.0,
+    max_ticks: Annotated[
+        int | None, typer.Option(help="Stop after this many ticks (demos/tests).")
+    ] = None,
 ) -> None:
     """Run continuously, checking each target on its own interval."""
     settings = _bootstrap()
@@ -147,7 +151,9 @@ def watch(
         enabled = sum(1 for target in targets if target.enabled)
         console.print(f"[cyan]watching {enabled} target(s)[/]  (Ctrl-C to stop)")
         try:
-            performed = scheduler.run_forever(targets, tick_seconds=tick_seconds, max_ticks=max_ticks)
+            performed = scheduler.run_forever(
+                targets, tick_seconds=tick_seconds, max_ticks=max_ticks
+            )
         finally:
             dispatcher.close()
         console.print(f"performed {performed} check(s)")
@@ -187,12 +193,9 @@ def validate() -> None:
     problems = 0
     for target in targets:
         try:
-            resolved = validate_target(
-                target.url, allow_private=settings.allow_private_targets
-            )
+            resolved = validate_target(target.url, allow_private=settings.allow_private_targets)
             console.print(
-                f"[green]ok[/]     {target.name}: {resolved.url} -> "
-                f"{', '.join(resolved.addresses)}"
+                f"[green]ok[/]     {target.name}: {resolved.url} -> {', '.join(resolved.addresses)}"
             )
         except UnsafeTargetError as exc:
             problems += 1

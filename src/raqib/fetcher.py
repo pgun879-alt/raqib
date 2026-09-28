@@ -137,7 +137,9 @@ class Fetcher:
             follow_redirects=False,
             headers={
                 "User-Agent": settings.user_agent,
-                "Accept": "text/html,application/xhtml+xml,application/json,text/plain;q=0.9,*/*;q=0.8",
+                "Accept": (
+                    "text/html,application/xhtml+xml,application/json,text/plain;q=0.9,*/*;q=0.8"
+                ),
                 "Accept-Encoding": "gzip, deflate",
             },
         )
@@ -268,7 +270,9 @@ class Fetcher:
                     resolved_address=address,
                 )
         except httpx.TimeoutException as exc:
-            raise FetchError(f"{target.url} timed out after {self.settings.request_timeout_seconds}s") from exc
+            raise FetchError(
+                f"{target.url} timed out after {self.settings.request_timeout_seconds}s"
+            ) from exc
         except httpx.HTTPError as exc:
             raise FetchError(f"{target.url} could not be fetched: {exc}") from exc
         finally:
@@ -314,7 +318,9 @@ class Fetcher:
         # the distinction the exception hierarchy exists to make -- a caller could no longer tell
         # "robots.txt was unreachable" from "the page timed out", even though it matters for how
         # the failure is reported. Every FetchError subclass takes a single message argument.
-        raise type(last_error)(summary) if isinstance(last_error, FetchError) else FetchError(summary)
+        raise (
+            type(last_error)(summary) if isinstance(last_error, FetchError) else FetchError(summary)
+        )
 
     def _fetch_with_redirects(self, url: str, *, respect_robots: bool) -> FetchResult:
         current = url

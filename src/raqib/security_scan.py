@@ -321,10 +321,12 @@ def inspect_certificate(
     context = ssl.create_default_context()
     connect_to = address or host
     try:
-        with socket.create_connection((connect_to, port), timeout=timeout) as raw:
-            with context.wrap_socket(raw, server_hostname=host) as tls:
-                certificate = tls.getpeercert()
-                version = tls.version()
+        with (
+            socket.create_connection((connect_to, port), timeout=timeout) as raw,
+            context.wrap_socket(raw, server_hostname=host) as tls,
+        ):
+            certificate = tls.getpeercert()
+            version = tls.version()
     except ssl.SSLCertVerificationError as exc:
         findings.append(
             Finding(

@@ -90,9 +90,7 @@ def _path_matches(pattern: str, path: str) -> bool:
 class RobotsRules:
     """Parsed ``robots.txt`` rules for one origin."""
 
-    def __init__(
-        self, groups: list[Group], *, user_agent: str, unavailable: bool = False
-    ) -> None:
+    def __init__(self, groups: list[Group], *, user_agent: str, unavailable: bool = False) -> None:
         self._token = _agent_token(user_agent)
         specific = [group for group in groups if self._token in group.agents]
         wildcard = [group for group in groups if "*" in group.agents]
@@ -198,9 +196,11 @@ class RobotsRules:
             for rule in group.rules:
                 if not _path_matches(rule.path, path):
                     continue
-                if best is None or rule.specificity > best.specificity:
-                    best = rule
-                elif rule.specificity == best.specificity and rule.allowed:
+                if (
+                    best is None
+                    or rule.specificity > best.specificity
+                    or (rule.specificity == best.specificity and rule.allowed)
+                ):
                     best = rule
         if best is None:
             return True  # nothing matched -> allowed

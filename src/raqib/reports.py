@@ -46,7 +46,9 @@ def _slug(name: str) -> str:
     Target names are already validated against path separators, but this is the point where a
     name becomes a path, so it is checked again rather than trusted.
     """
-    safe = "".join(character if character.isalnum() or character in "-_" else "-" for character in name)
+    safe = "".join(
+        character if character.isalnum() or character in "-_" else "-" for character in name
+    )
     return safe.strip("-").lower() or "target"
 
 
@@ -68,7 +70,9 @@ def build_context(
                 "is_first_snapshot": outcome.is_first_snapshot,
                 "error": outcome.error,
                 "diff": outcome.diff,
-                "availability_pct": round(availability * 100, 1) if availability is not None else None,
+                "availability_pct": round(availability * 100, 1)
+                if availability is not None
+                else None,
                 "snapshots": store.count_snapshots(outcome.target.name),
                 "alerts": [alert.to_dict() for alert in outcome.alerts],
                 "security": _security_context(outcome),

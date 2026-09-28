@@ -73,7 +73,7 @@ def build_diff(previous: str, current: str, *, name: str, max_lines: int = MAX_D
         return ""
     if len(lines) > max_lines:
         remaining = len(lines) - max_lines
-        lines = lines[:max_lines] + [f"... ({remaining} more diff line(s) omitted)"]
+        lines = [*lines[:max_lines], f"... ({remaining} more diff line(s) omitted)"]
     return "\n".join(lines)
 
 
@@ -222,11 +222,12 @@ class Monitor:
                 elapsed_ms=response.elapsed_ms,
                 history_limit=self.settings.snapshot_history_limit,
             )
+            summary = summarise_change(previous_snapshot.content, extraction.text)
             self._emit(
                 outcome,
                 kind="content_change",
                 severity="warning",
-                title=f"{target.name} changed ({summarise_change(previous_snapshot.content, extraction.text)})",
+                title=f"{target.name} changed ({summary})",
                 body=outcome.diff,
                 details={"previous_captured_at": previous_snapshot.captured_at},
             )
@@ -240,9 +241,10 @@ class Monitor:
             outcome.security = self._assess_security(target, response)
             if outcome.security is not None:
                 checks = ",".join(sorted(f.check for f in outcome.security.findings))
-                if self.store.should_alert(
-                    target.name, "security", content_fingerprint(checks)
-                ) and outcome.security.findings:
+                if (
+                    self.store.should_alert(target.name, "security", content_fingerprint(checks))
+                    and outcome.security.findings
+                ):
                     worst = outcome.security.sorted_findings[0]
                     self._emit(
                         outcome,
@@ -360,7 +362,9 @@ class Monitor:
                 outcomes.append(self.check(target))
             except Exception:
                 # One target must never stop the run.
-                logger.exception("unexpected error checking a target", extra={"target": target.name})
+                logger.exception(
+                    "unexpected error checking a target", extra={"target": target.name}
+                )
                 outcomes.append(CheckOutcome(target=target, error="unexpected internal error"))
         return outcomes
 
@@ -396,7 +400,9 @@ class Scheduler:
                 due.append(target)
         return due
 
-    def run_once(self, targets: list[WatchTarget], *, now: float | None = None) -> list[CheckOutcome]:
+    def run_once(
+        self, targets: list[WatchTarget], *, now: float | None = None
+    ) -> list[CheckOutcome]:
         """Check whatever is due, and schedule each one's next check."""
         moment = now if now is not None else time.monotonic()
         due = self.due_targets(targets, now=moment)
