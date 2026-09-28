@@ -1,0 +1,34 @@
+# raqib watch targets.
+#
+# The bundled demo points at a local static server (see `raqib serve-demo`), which is why the
+# demo's .env sets RAQIB_ALLOW_PRIVATE_TARGETS=true. For real targets, leave that off.
+
+targets:
+  # Whole-page text. The ignore_patterns entry is doing essential work: the demo page carries a
+  # generated-at timestamp, and without removing it every single poll would report a change.
+  - name: demo-catalogue
+    url: http://127.0.0.1:8999/index.html
+    interval_minutes: 5
+    extractor: text
+    ignore_patterns:
+      - '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z'
+
+  # A CSS selector: watch only the price table, ignoring everything else on the page.
+  - name: demo-prices
+    url: http://127.0.0.1:8999/index.html
+    interval_minutes: 5
+    extractor: css
+    selector: "#catalogue"
+
+  # A JSON API, by dotted path with [n] indexing.
+  - name: demo-api-first-product
+    url: http://127.0.0.1:8999/api.json
+    interval_minutes: 10
+    extractor: json
+    selector: products[0]
+
+  # Disallowed by the demo site's robots.txt. raqib must refuse to fetch it.
+  - name: demo-disallowed
+    url: http://127.0.0.1:8999/private/secret.html
+    interval_minutes: 60
+    extractor: text

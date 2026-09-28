@@ -1,0 +1,10 @@
+# robots.txt for the raqib demo site.
+#
+# The /private/ rule is here so the demo can show robots compliance being enforced rather than
+# merely claimed: raqib refuses to fetch that path even though it is reachable.
+
+User-agent: *
+Crawl-delay: 1
+Disallow: /private/
+
+Sitemap: http://127.0.0.1:8999/sitemap.xml

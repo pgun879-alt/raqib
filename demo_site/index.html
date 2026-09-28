@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Demo Store — Product Catalogue</title>
+  <style>body{font-family:system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem}
+  .price{font-weight:700}.stock{color:#2a7}table{border-collapse:collapse;width:100%}
+  td,th{border:1px solid #ddd;padding:.4rem .6rem;text-align:left}</style>
+  <script>console.log("inline script: must be stripped before comparison");</script>
+</head>
+<body>
+  <h1>Demo Store</h1>
+
+  <!-- This timestamp changes on every request. Without an ignore_pattern it would make every
+       poll look like a content change -- which is exactly the failure this demo exists to show. -->
+  <p class="generated">Page generated at: <span id="ts">2026-09-28T01:00:00Z</span></p>
+
+  <h2>Catalogue</h2>
+  <table id="catalogue">
+    <tr><th>Product</th><th>Price</th><th>Availability</th></tr>
+    <tr><td>Split air conditioner 12000 BTU</td><td class="price">89,900 DZD</td><td class="stock">In stock</td></tr>
+    <tr><td>Washing machine 7 kg</td><td class="price">54,500 DZD</td><td class="stock">In stock</td></tr>
+    <tr><td>Water heater 80 L</td><td class="price">31,200 DZD</td><td class="stock">In stock</td></tr>
+  </table>
+
+  <h2>Delivery</h2>
+  <p>Free delivery on orders over 8,000 DZD. Delivery within the province takes 1–2 working days.</p>
+
+  <footer><p>Fictional sample content for demonstrating raqib.</p></footer>
+</body>
+</html>

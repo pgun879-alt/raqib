@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-09-28T01:00:00Z",
+  "currency": "DZD",
+  "products": [
+    { "sku": "AC-12000", "name": "Split air conditioner 12000 BTU", "price": 89900, "in_stock": true },
+    { "sku": "WM-7KG", "name": "Washing machine 7 kg", "price": 54500, "in_stock": true },
+    { "sku": "WH-80L", "name": "Water heater 80 L", "price": 31200, "in_stock": true }
+  ]
+}
