@@ -7,7 +7,7 @@ scraper.**
 > Arabic *رَقِيب* means "a watcher" or "a monitor".
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-292%20passing-brightgreen)](#testing)
+[![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](#testing)
 [![Types](https://img.shields.io/badge/mypy-clean-brightgreen)](#testing)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -105,7 +105,7 @@ a recovery alerts once, and repeats are silent.
 ## Quickstart
 
 ```bash
-git clone <your-repo-url> raqib && cd raqib
+git clone https://github.com/<github-username>/raqib.git && cd raqib
 make setup
 make demo
 ```
@@ -257,13 +257,18 @@ Startup refuses configurations that would be unsafe or incoherent:
 make check      # ruff format --check + ruff check + mypy + pytest
 ```
 
-Verified on Python 3.13.9, Linux, at the time of writing:
+Verified on Python 3.13.9, Linux, by running these commands after the most recent change:
 
 ```
-292 passed in 9.18s
+298 passed                                       # pytest
 Success: no issues found in 13 source files      # mypy
-All checks passed!                               # ruff
+All checks passed!                               # ruff check
+27 files already formatted                       # ruff format --check
 ```
+
+CI (`.github/workflows/ci.yml`) runs the same four checks in a clean container on every push, plus
+a repository-hygiene scan that fails the build if a database, a virtual environment or a
+credential-shaped literal is ever committed.
 
 The suite is **fully offline**. Web traffic is served by an in-process `httpx` mock transport, so
 redirect handling, size caps, retry/backoff, robots enforcement and DNS pinning are all genuinely
@@ -370,6 +375,7 @@ Every row was verified by running the code.
 | Alerting on state change only | ✅ Tested; full lifecycle verified live |
 | Alert sinks: stdout, file, webhook, telegram | ⚠️ All four implemented. stdout and file **run in the demo**; webhook and telegram are tested against a mock transport but have **not** been pointed at a real endpoint. |
 | Per-target alert routing (`notify:`) | ✅ Implemented and tested; unknown sink names refused when the targets file loads |
+| CI (format, lint, types, tests, hygiene) | ✅ Workflow committed and valid; **never executed on GitHub** — it has not been pushed |
 | Passive security assessment | ✅ 27 tests. Exercised against the local demo site; **not** yet run against a real HTTPS host with a real certificate. |
 | HTML + Markdown reports | ✅ Generated and opened |
 | Scheduler with jitter | ✅ Tested |
@@ -407,7 +413,7 @@ src/raqib/
 ├── cli.py             Typer CLI
 └── templates/         self-contained report templates
 demo_site/             bundled fixture site, including a robots.txt that forbids a path
-tests/                 292 tests, fully offline
+tests/                 298 tests, fully offline
 ```
 
 ## Sample data
