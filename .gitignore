@@ -6,7 +6,6 @@ env/
 # Secrets and local configuration -- never commit these
 .env
 .env.*
-!.env.example
 
 # Snapshot history contains copies of third-party page content
 data/
@@ -42,3 +41,15 @@ htmlcov/
 .idea/
 *.swp
 .DS_Store
+
+# Generated reports and exports -- these contain real operational data
+*.log
+*.jsonl
+*.csv
+*.xlsx
+
+# Local database files
+*.db
+
+# Always keep the documented placeholder file
+!.env.example
