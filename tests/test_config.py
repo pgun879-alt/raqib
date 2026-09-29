@@ -90,7 +90,6 @@ def test_the_log_level_is_normalised_and_validated() -> None:
     ("field", "value"),
     [
         ("min_seconds_between_requests_per_host", -1),
-        ("max_concurrent_requests", 0),
         ("request_timeout_seconds", 0),
         ("max_response_bytes", 10),
         ("max_redirects", -1),
@@ -254,3 +253,24 @@ def test_the_yaml_loader_cannot_construct_arbitrary_objects(tmp_path: Path) -> N
     path.write_text("targets: !!python/object/apply:os.system ['echo pwned']\n", encoding="utf-8")
     with pytest.raises(ValueError, match="not valid YAML"):
         load_targets(path)
+
+
+def test_notify_accepts_known_sink_names() -> None:
+    target = WatchTarget(name="t", url="https://example.com/", notify=("file", "telegram"))
+    assert target.notify == ("file", "telegram")
+
+
+def test_notify_rejects_an_unknown_sink_name() -> None:
+    """A typo would otherwise route a target's alerts to nowhere, in silence."""
+    with pytest.raises(ValidationError, match="unknown notify sink"):
+        WatchTarget(name="t", url="https://example.com/", notify=("telegramm",))
+
+
+def test_max_concurrent_requests_is_gone() -> None:
+    """It was declared, validated and advertised in .env.example, but never read at runtime.
+
+    A setting that silently does nothing is worse than no setting: it tells the operator they
+    have a control they do not have. Real concurrency needs async fan-out and a rework of the
+    politeness gate, so the honest fix was to remove the knob rather than fake it.
+    """
+    assert not hasattr(Settings(_env_file=None), "max_concurrent_requests")

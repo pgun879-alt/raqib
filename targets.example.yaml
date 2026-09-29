@@ -27,6 +27,13 @@ targets:
     extractor: json
     selector: products[0]
 
+  # `notify` routes this target's alerts to specific sinks. Omit it (as every target above
+  # does) to use every sink configured in RAQIB_ALERT_SINKS, which is the usual case.
+  #
+  #  - name: noisy-page
+  #    url: https://example.com/status
+  #    notify: [file]        # record it, but do not interrupt anyone
+
   # Disallowed by the demo site's robots.txt. raqib must refuse to fetch it.
   - name: demo-disallowed
     url: http://127.0.0.1:8999/private/secret.html

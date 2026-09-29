@@ -197,8 +197,16 @@ class AlertDispatcher:
         self.sent = 0
         self.failed = 0
 
-    def dispatch(self, alert: Alert) -> None:
-        for sink in self.sinks:
+    def dispatch(self, alert: Alert, *, only: tuple[str, ...] = ()) -> None:
+        """Send ``alert`` to every sink, or only to those named in ``only``.
+
+        ``only`` is a target's ``notify`` list. An empty tuple means "every configured sink",
+        which keeps the common case free of configuration. A name that is not among the
+        configured sinks simply matches nothing here -- target files are validated against the
+        set of known sink names when they load.
+        """
+        chosen = [sink for sink in self.sinks if not only or sink.name in only]
+        for sink in chosen:
             try:
                 sink.send(alert)
                 self.sent += 1

@@ -47,9 +47,11 @@ class Settings(BaseSettings):
 
     # --- politeness --------------------------------------------------------------
     user_agent: str = Field(
-        default="raqib/0.1 (+https://github.com/your-username/raqib; self-hosted monitor)",
+        default="raqib/0.1 (+https://github.com/<github-username>/raqib; self-hosted monitor)",
         description="Sent on every request. An identifiable agent with contact information is "
-        "what lets a site owner tell a monitor from an attack.",
+        "what lets a site owner tell a monitor from an attack, and gives them someone to "
+        "contact. The default carries a literal <github-username> placeholder -- replace it "
+        "before monitoring anything you do not own, or the contact URL leads nowhere.",
     )
     respect_robots: bool = Field(
         default=True,
@@ -57,7 +59,6 @@ class Settings(BaseSettings):
         "authorisation section.",
     )
     min_seconds_between_requests_per_host: float = Field(default=2.0, ge=0.0, le=600.0)
-    max_concurrent_requests: int = Field(default=4, ge=1, le=32)
     request_timeout_seconds: float = Field(default=20.0, gt=0, le=300)
     max_response_bytes: int = Field(
         default=5 * 1024 * 1024,
@@ -185,6 +186,9 @@ class WatchTarget(BaseModel):
     #: Required for ``security_check`` -- see the README's authorisation section.
     authorised: bool = False
 
+    #: Which configured alert sinks this target's alerts go to. Empty means "every configured
+    #: sink", which is the common case. Naming a sink that is not configured is refused at load
+    #: time rather than silently dropping the alerts.
     notify: tuple[str, ...] = ()
 
     @field_validator("name")
@@ -213,6 +217,20 @@ class WatchTarget(BaseModel):
                 raise ValueError(
                     f"ignore_patterns entry {pattern!r} is not a valid regex: {exc}"
                 ) from exc
+        return value
+
+    @field_validator("notify")
+    @classmethod
+    def _known_sink_names(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        """Reject a routing name that is not a sink.
+
+        This cannot check that the sink is *enabled* -- that lives in Settings, not here -- but a
+        typo like ``telegramm`` would otherwise route a target's alerts to nowhere in silence.
+        """
+        known = {"file", "webhook", "telegram", "stdout"}
+        unknown = sorted(set(value) - known)
+        if unknown:
+            raise ValueError(f"unknown notify sink(s) {unknown}; known sinks: {sorted(known)}")
         return value
 
     @model_validator(mode="after")

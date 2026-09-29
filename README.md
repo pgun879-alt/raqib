@@ -198,6 +198,10 @@ Four sinks, set with `RAQIB_ALERT_SINKS` (comma-separated):
 | `webhook` | POSTs JSON. Slack, Discord, n8n, anything. |
 | `telegram` | Where small businesses actually read things. |
 
+A target may narrow its own routing with `notify:`, listing the sink names its alerts should reach.
+Omitting it — the usual case — sends to every configured sink. An unknown sink name is refused when
+the targets file loads, so a typo cannot silently route a target's alerts to nowhere.
+
 ## Authorisation — read this before using `security_check`
 
 Everything in the security assessment is **passive**. The only network traffic is one ordinary
@@ -297,8 +301,11 @@ Stated plainly.
    the 8 GB laptop this was built on. Out of scope for v1.
 2. **No authenticated monitoring.** Login-gated pages are not supported. Storing customer
    credentials to scrape their own site is a liability this deliberately avoids.
-3. **Sequential checks.** `max_concurrent_requests` is honoured as a ceiling but the loop is
-   serial. Fine for tens of targets on a schedule; hundreds would want async fan-out.
+3. **Checks are sequential.** One target at a time, in order. Fine for tens of targets on a
+   schedule; hundreds would want async fan-out. There is deliberately **no** concurrency setting:
+   an earlier version declared `max_concurrent_requests`, validated it, and documented it while
+   never reading it at runtime. A knob that does nothing is worse than no knob, so it was removed
+   rather than faked.
 4. **Security assessment is passive and shallow by design.** Headers, cookie flags, TLS expiry,
    mixed content. It will not find an injection flaw, and is not trying to.
 5. **The security score is a blunt instrument.** A 0–100 deduction from a fixed weight table. Its
@@ -362,6 +369,7 @@ Every row was verified by running the code.
 | Snapshot history with pruning, unified diffs | ✅ Tested |
 | Alerting on state change only | ✅ Tested; full lifecycle verified live |
 | Alert sinks: stdout, file, webhook, telegram | ⚠️ All four implemented. stdout and file **run in the demo**; webhook and telegram are tested against a mock transport but have **not** been pointed at a real endpoint. |
+| Per-target alert routing (`notify:`) | ✅ Implemented and tested; unknown sink names refused when the targets file loads |
 | Passive security assessment | ✅ 27 tests. Exercised against the local demo site; **not** yet run against a real HTTPS host with a real certificate. |
 | HTML + Markdown reports | ✅ Generated and opened |
 | Scheduler with jitter | ✅ Tested |
@@ -380,7 +388,6 @@ from this code, and the TLS-certificate path has only ever seen a local plain-HT
 2. Re-check `robots.txt` on a TTL so a long `watch` picks up new rules.
 3. Async fan-out with a real concurrency limit, for hundreds of targets.
 4. Optional Playwright renderer behind a flag, for JavaScript-built pages.
-5. Per-target alert routing (`notify:` is parsed but not yet used for routing).
 6. Uptime summaries over a chosen window in the report.
 
 ## Project layout

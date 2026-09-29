@@ -337,7 +337,7 @@ class Monitor:
             details=details or {},
         )
         outcome.alerts.append(alert)
-        self.dispatcher.dispatch(alert)
+        self.dispatcher.dispatch(alert, only=outcome.target.notify)
 
     def _record(self, outcome: CheckOutcome) -> None:
         self.store.record_check(

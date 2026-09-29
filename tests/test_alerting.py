@@ -245,3 +245,46 @@ def test_the_factory_builds_a_telegram_sink(settings: Settings) -> None:
     )
     assert [sink.name for sink in dispatcher.sinks] == ["telegram"]
     dispatcher.close()
+
+
+# --------------------------------------------------------------------- routing
+
+
+def test_an_empty_notify_list_sends_to_every_sink() -> None:
+    """The common case: a target that says nothing about routing reaches every configured sink."""
+    first, second = RecordingSink(), RecordingSink()
+    first.name, second.name = "file", "stdout"
+    AlertDispatcher([first, second]).dispatch(_alert())
+    assert len(first.alerts) == 1
+    assert len(second.alerts) == 1
+
+
+def test_notify_restricts_delivery_to_the_named_sinks() -> None:
+    wanted, unwanted = RecordingSink(), RecordingSink()
+    wanted.name, unwanted.name = "file", "telegram"
+    AlertDispatcher([wanted, unwanted]).dispatch(_alert(), only=("file",))
+    assert len(wanted.alerts) == 1
+    assert unwanted.alerts == [], "a sink not named in notify must not receive the alert"
+
+
+def test_notify_can_name_several_sinks() -> None:
+    sinks = [RecordingSink(), RecordingSink(), RecordingSink()]
+    for sink, name in zip(sinks, ("file", "stdout", "telegram"), strict=True):
+        sink.name = name
+    AlertDispatcher(sinks).dispatch(_alert(), only=("file", "telegram"))
+    assert [len(s.alerts) for s in sinks] == [1, 0, 1]
+
+
+def test_notify_naming_an_unconfigured_sink_delivers_nothing() -> None:
+    """Routing filters the sinks that exist; it cannot conjure one that was never configured.
+
+    Target files are validated against the known sink names at load time, so this state means the
+    operator named a real sink they did not enable -- and silently dropping is the safe behaviour
+    for a monitoring tool, since the alternative is crashing the run.
+    """
+    sink = RecordingSink()
+    sink.name = "file"
+    dispatcher = AlertDispatcher([sink])
+    dispatcher.dispatch(_alert(), only=("telegram",))
+    assert sink.alerts == []
+    assert dispatcher.sent == 0
