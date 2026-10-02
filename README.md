@@ -105,7 +105,7 @@ a recovery alerts once, and repeats are silent.
 ## Quickstart
 
 ```bash
-git clone https://github.com/<github-username>/raqib.git && cd raqib
+git clone https://github.com/pgun879-alt/raqib.git && cd raqib
 make setup
 make demo
 ```
