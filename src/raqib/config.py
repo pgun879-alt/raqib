@@ -47,11 +47,11 @@ class Settings(BaseSettings):
 
     # --- politeness --------------------------------------------------------------
     user_agent: str = Field(
-        default="raqib/0.1 (+https://github.com/<github-username>/raqib; self-hosted monitor)",
+        default="raqib/0.1 (+https://github.com/pgun879-alt/raqib; self-hosted monitor)",
         description="Sent on every request. An identifiable agent with contact information is "
         "what lets a site owner tell a monitor from an attack, and gives them someone to "
-        "contact. The default carries a literal <github-username> placeholder -- replace it "
-        "before monitoring anything you do not own, or the contact URL leads nowhere.",
+        "contact. The default URL identifies this tool, not whoever is running it -- when you "
+        "monitor a site you do not own, point it at a page that reaches you instead.",
     )
     respect_robots: bool = Field(
         default=True,
