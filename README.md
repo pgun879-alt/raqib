@@ -6,6 +6,7 @@ scraper.**
 
 > Arabic *رَقِيب* means "a watcher" or "a monitor".
 
+[![CI](https://github.com/pgun879-alt/raqib/actions/workflows/ci.yml/badge.svg)](https://github.com/pgun879-alt/raqib/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](#testing)
 [![Types](https://img.shields.io/badge/mypy-clean-brightgreen)](#testing)
@@ -375,7 +376,7 @@ Every row was verified by running the code.
 | Alerting on state change only | ✅ Tested; full lifecycle verified live |
 | Alert sinks: stdout, file, webhook, telegram | ⚠️ All four implemented. stdout and file **run in the demo**; webhook and telegram are tested against a mock transport but have **not** been pointed at a real endpoint. |
 | Per-target alert routing (`notify:`) | ✅ Implemented and tested; unknown sink names refused when the targets file loads |
-| CI (format, lint, types, tests, hygiene) | ✅ Workflow committed and valid; **never executed on GitHub** — it has not been pushed |
+| CI (format, lint, types, tests, hygiene) | ✅ Workflow committed and valid. Its real status is the CI badge at the top of this file, which reports whatever GitHub last ran — including "no runs yet" |
 | Passive security assessment | ✅ 27 tests. Exercised against the local demo site; **not** yet run against a real HTTPS host with a real certificate. |
 | HTML + Markdown reports | ✅ Generated and opened |
 | Scheduler with jitter | ✅ Tested |
@@ -421,6 +422,13 @@ tests/                 298 tests, fully offline
 `demo_site/` is fictional content written for this demo — a made-up shop with three products. It
 describes no real business. The demo copies it to a temporary directory before editing, so
 running the demo never dirties the repository.
+
+## Contributing and security
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to set the project up, the four gates every
+  change has to pass, and the parts of this code that need care.
+- **[SECURITY.md](SECURITY.md)** — the threat model, what counts as a vulnerability here, what
+  deliberately does not, and how to report one privately.
 
 ## License
 
