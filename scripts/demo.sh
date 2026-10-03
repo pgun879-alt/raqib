@@ -80,13 +80,13 @@ except Exception as exc:
   exit 1
 fi
 
-check() { "$PYTHON" -m raqib.cli check 2>&1 | grep -vE '^warning:|allow_private_targets|^$' || true; }
+check() { "$PYTHON" -m raqib.cli check 2>&1 | grep -vE '^warning:|allow_private_targets|local test server|^$' || true; }
 
 rule "0. What we are watching"
-"$PYTHON" -m raqib.cli list 2>&1 | grep -vE '^warning:|allow_private_targets' || true
+"$PYTHON" -m raqib.cli list 2>&1 | grep -vE '^warning:|allow_private_targets|local test server' || true
 
 rule "1. Targets pass the SSRF guard before anything is fetched"
-"$PYTHON" -m raqib.cli validate 2>&1 | grep -vE '^warning:|allow_private_targets' || true
+"$PYTHON" -m raqib.cli validate 2>&1 | grep -vE '^warning:|allow_private_targets|local test server' || true
 
 rule "2. First run: baselines captured, and robots.txt refuses /private/"
 echo "Note the demo-disallowed target: robots.txt forbids it, so raqib refuses to fetch it."
@@ -151,7 +151,7 @@ for line in path.read_text(encoding="utf-8").splitlines():
 PY
 
 rule "10. Reports"
-"$PYTHON" -m raqib.cli report --output-stem demo 2>&1 | grep -vE '^warning:|allow_private_targets' || true
+"$PYTHON" -m raqib.cli report --output-stem demo 2>&1 | grep -vE '^warning:|allow_private_targets|local test server' || true
 
 rule "Done"
 cat <<EOF
