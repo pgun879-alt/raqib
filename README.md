@@ -6,6 +6,8 @@ scraper.**
 
 > Arabic *رَقِيب* means "a watcher" or "a monitor".
 
+**[اقرأ بالعربية](README.ar.md)**
+
 [![CI](https://github.com/pgun879-alt/raqib/actions/workflows/ci.yml/badge.svg)](https://github.com/pgun879-alt/raqib/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](#testing)
